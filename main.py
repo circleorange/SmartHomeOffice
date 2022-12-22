@@ -1,3 +1,4 @@
+# Libraries
 from sense_hat import SenseHat
 import subprocess
 import time
@@ -18,6 +19,7 @@ blynk = BlynkLib.Blynk(config["BLYNK_AUTH_TOKEN"])
 sense = SenseHat()
 sense.clear()
 
+
 # Register handler for virtual pin V0 write event
 @blynk.on("V0")
 def v3_write_handler(value):
@@ -31,6 +33,7 @@ def v3_write_handler(value):
     else:
         url = 'https://maker.ifttt.com/trigger/turn_off/with/key/'+config["IFTTT_KEY"]
         response = requests.post(url)
+
 
 def read_environmental_data():
     # ----- Sense Hat -----
@@ -58,7 +61,24 @@ def read_environmental_data():
     return temp_calibrated
 
 
+# Send temperature exceeded notification
+def send_temperature_notification():
+    url = 'https://maker.ifttt.com/trigger/temperature_exceeded/with/key/'+config["IFTTT_KEY"]
+    response = requests.post(url)
+
+notification_cooldown = 0 # Initialize timer for mobile notifications
+target_temperature = 22
+
 while True:
     blynk.run()
-    blynk.virtual_write(1, read_environmental_data())
+    temperature = read_environmental_data()
+    blynk.virtual_write(1, temperature) # write environmental data to Blynk
+
+    # ----- Limit number of notifications sent to the user -----
+    if temperature >= target_temperature and notification_cooldown == 0:
+        send_temperature_notification()
+        notification_cooldown = 60 # With sleep time 0.5 and cooldown 60, notification can trigger every 30 seconds
+    elif notification_cooldown > 0:
+        notification_cooldown -= 1
+
     time.sleep(.5)
