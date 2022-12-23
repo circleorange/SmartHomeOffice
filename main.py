@@ -114,24 +114,34 @@ def read_environmental_data():
         "Pressure": pressure, 
         "Humidity": humidity
         }
-    print(sensor_data)
     return sensor_data
 
 
 def power_on_heater():
+    blynk.virtual_write(0, 1)
     url = 'https://maker.ifttt.com/trigger/turn_on/with/key/'+config["IFTTT_KEY"]
     response = requests.post(url)
 
 
 def power_off_heater():
+    blynk.virtual_write(0, 0)
     url = 'https://maker.ifttt.com/trigger/turn_off/with/key/'+config["IFTTT_KEY"]
     response = requests.post(url)
 
 
-# Send temperature exceeded notification
 def send_temperature_notification():
     url = 'https://maker.ifttt.com/trigger/temperature_exceeded/with/key/'+config["IFTTT_KEY"]
     response = requests.post(url)
+
+
+# Check if user is home upon temperature break
+def is_user_on_wifi():
+    try:
+        nmap_scan = subprocess.check_output(f'sudo nmap -sn 192.168.178.0/24 | grep {config["MAC_ADDRESS"]}', shell=True)
+        return True
+    except:
+        return False
+    
 
 # ----- Thing Speak setup -----
 # Define event callbacks for MQTT
@@ -147,7 +157,7 @@ mqttc = mqtt.Client(client_id=config["THINGSPEAK_CLIENT_ID"])
 mqttc.on_connect = on_connect
 mqttc.on_publish = on_publish
 
-# parse mqtt url for connection details
+# Parse mqtt url for connection details
 url_str = sys.argv[1]
 print(url_str)
 url = urlparse(url_str)
@@ -156,11 +166,11 @@ base_topic = url.path[1:]
 # Configure MQTT client with user name and password
 mqttc.username_pw_set(config["THINGSPEAK_USERNAME"], config["THINKGSPEAK_PASSWORD"])
 
-#Connect to MQTT Broker
+# Establish connection to MQTT Broker
 mqttc.connect(url.hostname, url.port)
 mqttc.loop_start()
 
-#Set Thingspeak Channel to publish to
+# Define publication Thingspeak channel
 topic = "channels/"+config["THINKGSPEAK_CHANNEL_ID"]+"/publish"
 
 # ----- Main loop ----
@@ -181,10 +191,10 @@ while True:
     elif notification_cooldown > 0:
         notification_cooldown -= 1
     
-    # Disable heating if temperature has been exceed by 20%
-    if current_temp > target_temperature + (current_temp * 0.2) and target_temperature is not None and safety_control:
-        value = blynk.virtual_write(0, 0)
-        power_off_heater()
+    # Disable heating if temperature has been exceed by 20% and user is not detected on WiFi network
+    if current_temp > target_temperature + (current_temp * 0.2) and target_temperature is not None:
+        if safety_control or (safety_control == False and is_user_on_wifi() == False):
+            power_off_heater()
 
     # Publish a message to temp every 15 seconds
     mqtt_counter += 1

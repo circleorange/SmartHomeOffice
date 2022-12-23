@@ -1,0 +1,30 @@
+% Read over the past hour from a ThingSpeak channel and write 
+% the average to another ThingSpeak channel. 
+
+readChannelID = ;
+writeChannelID = ;
+
+readAPIKey = ''; 
+writeAPIKey = '';
+
+temperatureFieldID = 1; 
+humidityFieldID = 2;
+pressureFieldID = 3;
+
+temperature = thingSpeakRead(readChannelID,'Fields',temperatureFieldID,'NumMinutes',60,'ReadKey',readAPIKey);
+humidity = thingSpeakRead(readChannelID,'Fields',humidityFieldID,'NumMinutes',60,'ReadKey',readAPIKey); 
+pressure = thingSpeakRead(readChannelID,'Fields',pressureFieldID,'NumMinutes',60,'ReadKey',readAPIKey);
+
+% Calculate the average humidity 
+avgHumidity = mean(humidity); 
+display(avgHumidity,'Average Humidity'); 
+
+% Calculate the average temperature 
+avgTemperature = mean(temperature); 
+display(avgTemperature,'Average Temperature'); 
+
+% Calculate the average pressure 
+avgPressure = mean(pressure); 
+display(avgPressure,'Average Pressure');
+
+thingSpeakWrite(writeChannelID,[avgTemperature, avgHumidity, avgPressure],'Fields',[1,2,3],'WriteKey',writeAPIKey);

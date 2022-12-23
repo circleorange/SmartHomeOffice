@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Smart Home Office</title>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.8/dist/semantic.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.8/dist/semantic.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.6/semantic.min.js"></script>
+    <link type="text/css"  href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.6/semantic.min.css" rel="stylesheet" >
+  </head>
+  <body>
+    <div class="ui hidden divider"></div>
+    <h1 class="ui center aligned header">Smart Home Office</h1>
+    <div class="ui center aligned grid">
+      <div class="twelve wide column">
+    <section class="ui center aligned segment">
+      <h2 class="ui left aligned header">Current Readings</h2>
+      <div class="ui divider"></div>
+      <div class="ui three column grid">
+        <div class="row">
+          <div class="column">
+            <iframe width="450" height="260" style="border: 1px solid #cccccc;" src="https://thingspeak.com/channels/1950006/charts/1?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&title=Temperature+Sensor&type=line"></iframe>  
+          </div>
+          <div class="column">
+            <iframe width="450" height="260" style="border: 1px solid #cccccc;" src="https://thingspeak.com/channels/1950006/charts/2?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&title=Humidity+Sensor&type=line"></iframe>
+          </div>
+          <div class="column">
+            <iframe width="450" height="260" style="border: 1px solid #cccccc;" src="https://thingspeak.com/channels/1950006/charts/3?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&title=Pressure+Sensor&type=line"></iframe>
+          </div>
+        </div>
+      </div>
+      <h2 class="ui left aligned header">Statistics</h2>
+      <div class="ui divider"></div>
+      <div class="ui three column grid">
+      <div class="row">
+          <div class="column">
+            <iframe width="450" height="260" style="border: 1px solid #cccccc;" src="https://thingspeak.com/channels/1992019/charts/1?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&title=Temperature&type=line"></iframe>  
+          </div>
+          <div class="column">
+            <iframe width="450" height="260" style="border: 1px solid #cccccc;" src="https://thingspeak.com/channels/1992019/charts/2?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&title=Humidity&type=line"></iframe>
+          </div>
+          <div class="column">
+            <iframe width="450" height="260" style="border: 1px solid #cccccc;" src="https://thingspeak.com/channels/1992019/charts/3?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&title=Pressure&type=line"></iframe>
+          </div>
+        </div>
+      </div>
+    </section>
+        </div>
+      </div>
+  </body>
+</html>
