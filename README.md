@@ -7,15 +7,18 @@ Current equipment in use:
 2. Tapo P100 Smart Plug
 3. Raspberry Pi with SenseHat
 ### Services
-Current web services in use:
+Current IoT services in use:
 1. Blynk Web & Mobile App
 2. IFTTT Web & Mobile App
 ### Currently supported features
 - Smart Plug control via Blynk
 - Environmental data readings displayed on Blynk
 - Mobile notifications for temperatue readings exceeding the target temperature via IFTTT app
+- Set target temperature from Blynk using a slider widget
+- Option to toggle notifications
 ### Planned features
 - Environmental data sent to ThingSpeak
 - Environmental data charts from ThingSpeak embedded in Glitch web app
-- Set target temperature from Blynk
 - Turn of Smart Plug if target temperature is exceeded
+### Known Issues
+- When starting the app, the inital target temperature is 0 even though slider may be showing a different default value. 
