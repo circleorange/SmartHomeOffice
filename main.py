@@ -20,10 +20,14 @@ sense = SenseHat()
 sense.clear()
 
 # Initialize global variables
-notifications_enabled = True
 notification_cooldown = 0
 target_temperature = 0 
 
+# Initial Switch Configuration
+safety_control = True
+blynk.virtual_write(0, 0)
+send_notifications = False
+blynk.virtual_write(3, 0)
 
 # Register handler for virtual pin V0 write event (Power)
 @blynk.on("V0")
@@ -32,11 +36,9 @@ def v0_power_handler(value):
 
     # Read button value to control the device power
     if button_value == "1":
-        url = 'https://maker.ifttt.com/trigger/turn_on/with/key/'+config["IFTTT_KEY"]
-        response = requests.post(url)
+        power_on_heater()
     else:
-        url = 'https://maker.ifttt.com/trigger/turn_off/with/key/'+config["IFTTT_KEY"]
-        response = requests.post(url)
+        power_off_heater()
 
 
 # Register handler for virtual pin V2 write event (Target Temperature)
@@ -50,11 +52,22 @@ def v2_slider_callback(value):
 @blynk.on("V3")
 def v3_notifications_handler(value):
     button_value = value[0]
-    global notifications_enabled
+    global send_notifications
     if button_value == "1":
-        notifications_enabled = True
+        send_notifications = True
     else:
-        notifications_enabled = False
+        send_notifications = False
+
+
+# Register handler for virtual pin V4 write event (Safety Control)
+@blynk.on("V4")
+def v4_safety_control(value):
+    button_value = value[0]
+    global safety_control
+    if button_value == "1":
+        safety_control = True
+    else:
+        safety_control = False
 
 
 def read_environmental_data():
@@ -74,7 +87,7 @@ def read_environmental_data():
         print("Sensor T:", temp)
 
     # Calibrate temperature
-    factor = 1.6
+    factor = 1.4
     temp_calibrated = temp - ((cpu_temp - temp)/factor)
     temp_calibrated = float("{0:.2f}".format(temp_calibrated))
     if debug_mode == True:
@@ -83,24 +96,41 @@ def read_environmental_data():
     return temp_calibrated
 
 
+def power_on_heater():
+    url = 'https://maker.ifttt.com/trigger/turn_on/with/key/'+config["IFTTT_KEY"]
+    response = requests.post(url)
+
+
+def power_off_heater():
+    url = 'https://maker.ifttt.com/trigger/turn_off/with/key/'+config["IFTTT_KEY"]
+    response = requests.post(url)
+
+
 # Send temperature exceeded notification
 def send_temperature_notification():
     url = 'https://maker.ifttt.com/trigger/temperature_exceeded/with/key/'+config["IFTTT_KEY"]
     response = requests.post(url)
 
 
-
 while True:
     blynk.run()
-    temperature = read_environmental_data()
-    blynk.virtual_write(1, temperature) # write environmental data to Blynk
-
-    # ----- Limit number of notifications sent to the user -----
-    if temperature >= target_temperature and notification_cooldown == 0 and notifications_enabled:
+    # read environmental data to from RPi
+    current_temp = read_environmental_data()
+    # write environmental data to Blynk
+    blynk.virtual_write(1, current_temp)
+    
+    # ----- Limit number of notifications sent to the user ------
+    if current_temp > target_temperature and notification_cooldown == 0 and send_notifications and target_temperature is not None:
         send_temperature_notification()
-        # Loop sleep time is 0.5 and cooldown 60, then notification can trigger every 30 seconds
-        notification_cooldown = 10 
+        # While loop sleep time is 0.5 and cooldown 60,
+        # then notification can trigger every 30 seconds
+        notification_cooldown = 60 
     elif notification_cooldown > 0:
         notification_cooldown -= 1
     
+    # ----- Disable heating if temperature has been exceed by 20% -----
+    if current_temp > target_temperature + (current_temp * 0.2) and target_temperature is not None and safety_control:
+        value = blynk.virtual_write(0, 0)
+        power_off_heater()
+
     time.sleep(.5)
