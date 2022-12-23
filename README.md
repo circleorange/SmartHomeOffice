@@ -17,9 +17,11 @@ Current IoT services in use:
 - Set target temperature from Blynk using a slider widget
 - Option to toggle notifications
 - Safety feature: Turn off heating via Smart Plug if target temperature is exceeded
+- Publish environmental data to ThingSpeak
 ### Planned features
-- Environmental data sent to ThingSpeak
 - Environmental data charts from ThingSpeak embedded in Glitch web app
 - Check if user in at home by analysing WiFi network
 ### Known Issues
 - When starting the app, the inital target temperature is 0 even though slider may be showing a different default value. 
+
+### Installation Guide
